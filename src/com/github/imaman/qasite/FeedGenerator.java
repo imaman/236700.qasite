@@ -19,15 +19,14 @@ public class FeedGenerator {
 		this.storage = storage;
 	}
 	
-	public JsonElement generateFeed(List<String> topics,
+	public JsonElement generateFeed(Predicate selector,
       List<Question> favoriteQuestions, List<Question> generalQuestions) {
 		List<Question> selected = new ArrayList<Question>();
 		for (Question q : favoriteQuestions) 
 			selected.add(q);
 		
-		for (Question q : generalQuestions) {
-			double score = computeInterestScore(topics, q);
-			if (score > 0.6) 
+		for (Question q : generalQuestions) {			
+			if (selector.isSelected(q)) 
 				selected.add(q);
 		}
 		
@@ -55,13 +54,5 @@ public class FeedGenerator {
 		o.addProperty("by", u.name());
 		o.addProperty("when", q.date.getTime());
 		return o;
-  }
-	
-	
-
-	private double computeInterestScore(List<String> topics, Question q) {
-		Set<String> a = new HashSet<String>(q.topics());
-		a.retainAll(topics);
-		return 1.0 * a.size() / q.topics().size();
   }
 }
