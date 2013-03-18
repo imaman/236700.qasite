@@ -4,7 +4,7 @@ import java.util.List;
 
 public class Storage {
 
-	private Clock clock;
+	private final Clock clock;
 	
 	public Storage(Clock clock) {
 		this.clock = clock;
@@ -15,7 +15,13 @@ public class Storage {
   }
 
 	public List<Question> lookupQuestions(int howMany, List<String> topics) {
+		// Fetch records from the Database.
+		// Use clock for constructing the Date object of the new Question object 
 	  return null;
+  }
+
+	public Clock clock() {
+		return clock;
   }
 
 }

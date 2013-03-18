@@ -20,6 +20,22 @@ import org.junit.Test;
 
 public class MainPage_Test {
 	
+	private static final long NOW = 1000 * 24 * 60 * 60;
+	
+	private static class CustomClock extends Clock {
+
+		private final long now;
+		
+		public CustomClock(long now) {
+	    this.now = now;
+    }
+
+		@Override
+    public String timeAgo(long timestamp) {
+	    return (now - timestamp) / 1000 + " seconds ago";
+    }		
+	}
+	
 	@Test
 	public void f() throws IOException {
 		HttpServletRequest request = mock(HttpServletRequest.class);
@@ -38,6 +54,7 @@ public class MainPage_Test {
 		
 		
 		Storage storage = mock(Storage.class);
+		when(storage.clock()).thenReturn(new CustomClock(NOW));
 		List<String> topics = Arrays.asList("T1", "T2", "T5", "T6");
 		when(storage.lookupUser("u1")).thenReturn(new User(10, "N1", topics));
 		when(storage.lookupUser("u10")).thenReturn(new User(10, "N10", null));
@@ -48,43 +65,35 @@ public class MainPage_Test {
 		when(storage.lookupUser("u22")).thenReturn(new User(10, "N22", null));
 		
 		List<Question> favoriteQuestions = new ArrayList<Question>();
+
 		
-		favoriteQuestions.add(new Question(new Date(100), "u10", "B10"));
-		favoriteQuestions.add(new Question(new Date(110), "u11", "B11"));
-		favoriteQuestions.add(new Question(new Date(120), "u12", "B12"));
+		favoriteQuestions.add(new Question(ago(70), "u10", "B10"));
+		favoriteQuestions.add(new Question(ago(60), "u11", "B11"));
+		favoriteQuestions.add(new Question(ago(50), "u12", "B12"));
 		when(storage.lookupQuestions(10, topics)).thenReturn(favoriteQuestions);
 		
 		List<Question> generalQuestions = new ArrayList<Question>();
-		generalQuestions.add(new Question(new Date(101), "u20", "B20", "T1", "T2", "T3"));
-		generalQuestions.add(new Question(new Date(102), "u21", "B21", "T1", "T2", "T3", "T4"));
-		generalQuestions.add(new Question(new Date(103), "u22", "B22", "T4", "T5", "T6"));
+		generalQuestions.add(new Question(ago(69), "u20", "B20", "T1", "T2", "T3"));
+		generalQuestions.add(new Question(ago(68), "u21", "B21", "T1", "T2", "T3", "T4"));
+		generalQuestions.add(new Question(ago(67), "u22", "B22", "T4", "T5", "T6"));
 		when(storage.lookupQuestions(10, null)).thenReturn(generalQuestions);
 				
 		MainPage mainPage = new MainPage(storage);
 		mainPage.showFeedFor(request, response);
 		
 		pw.close();
-		assertEquals("[" + 
-				"\"B12 by N12\"," + 
-				"\"B11 by N11\"," + 
-				"\"B22 by N22\"," + 
-				"\"B20 by N20\"," + 
-				"\"B10 by N10\"" +
-				"]",
-//				"{\"date\":\"Jan 1, 1970 2:00:00 AM\",\"title\":\"B11 by N11\"}," + 
-//				"{\"date\":\"Jan 1, 1970 2:00:00 AM\",\"title\":\"B22 by N22\"}," + 
-//				"{\"date\":\"Jan 1, 1970 2:00:00 AM\",\"title\":\"B20 by N20\"}," + 
-//				"{\"date\":\"Jan 1, 1970 2:00:00 AM\",\"title\":\"B10 by N10\"}" +
-//				"]",
-//
-//				
-//				"{\"date\":\"Jan 1, 1970 2:00:00 AM\",\"userId\":\"u11\",\"body\":\"B11\",\"topics\":[]}," +
-//        "{\"date\":\"Jan 1, 1970 2:00:00 AM\",\"userId\":\"u22\",\"body\":\"B22\",\"topics\":[\"T4\",\"T5\",\"T6\"]}," +
-//        "{\"date\":\"Jan 1, 1970 2:00:00 AM\",\"userId\":\"u20\",\"body\":\"B20\",\"topics\":[\"T1\",\"T2\",\"T3\"]}," +
-//				"{\"date\":\"Jan 1, 1970 2:00:00 AM\",\"userId\":\"u10\",\"body\":\"B10\",\"topics\":[]}" +
-//				"]", 
+		assertEquals(
+				"B12 by N12, 50 seconds ago." + 
+				"B11 by N11, 60 seconds ago." + 
+				"B22 by N22, 67 seconds ago." + 
+				"B20 by N20, 69 seconds ago." + 
+				"B10 by N10, 70 seconds ago.",
 				sw.toString().trim());
 		
 	}
+
+	private Date ago(long seconds) {
+	  return new Date(NOW - seconds * 1000);
+  }
 
 }

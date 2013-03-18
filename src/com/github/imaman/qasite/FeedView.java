@@ -2,22 +2,24 @@ package com.github.imaman.qasite;
 
 import java.io.PrintWriter;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 public class FeedView {
 
-	private Gson gson = new Gson();
+	private Clock clock;
 	
+	public FeedView(Clock clock) {
+	  this.clock = clock;
+  }
+
 	public void render(JsonElement data, PrintWriter writer) {
-		JsonArray a = new JsonArray();
 		for (JsonElement current : data.getAsJsonArray()) {
 			JsonObject x = current.getAsJsonObject();
-			a.add(gson.toJsonTree(x.get("body").getAsString() + " by " + x.get("by").getAsString()));			
+			long when = x.get("when").getAsLong();
+			writer.print(x.get("body").getAsString() + " by " + x.get("by").getAsString() + ", " 
+					+ clock.timeAgo(when) + ".");			
 		}
-		writer.println(a.toString());	  
   }
 
 }

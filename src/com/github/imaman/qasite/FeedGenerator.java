@@ -55,6 +55,7 @@ public class FeedGenerator {
 		if (u == null)
 			throw new RuntimeException("User '" + q.userId + "' not found");
 		o.addProperty("by", u.name());
+		o.addProperty("when", q.date.getTime());
 		return o;
   }
 	
