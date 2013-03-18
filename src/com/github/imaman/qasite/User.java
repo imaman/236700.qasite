@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import com.google.gson.JsonElement;
+
 public class User {
 
 	private final List<String> topics = new ArrayList<String>();
@@ -30,4 +32,10 @@ public class User {
 		return name;
 	}
 
+	public JsonElement generateFeed(FeedGenerator feedGenerator, Storage storage) {
+		List<Question> favoriteQuestions = storage.lookupQuestions(pageSize, favoriteTopics());
+		List<Question> generalQuestions = storage.lookupQuestions(pageSize, null);
+		
+		return feedGenerator.generateFeed(topics, favoriteQuestions, generalQuestions);
+  }
 }

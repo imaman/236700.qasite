@@ -1,7 +1,6 @@
 package com.github.imaman.qasite;
 
 import java.io.IOException;
-import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -28,12 +27,8 @@ public class MainPage {
 		
 		if (DEFAULT_TAB.equals(tab)) {		
   		User user = storage.lookupUser(userId);
-  		int pageSize = user.pageSize();
   		
-  		List<Question> favoriteQuestions = storage.lookupQuestions(pageSize, user.favoriteTopics());
-  		List<Question> generalQuestions = storage.lookupQuestions(pageSize, null);
-  		
-  		JsonElement data = feedGenerator.generateFeed(user, favoriteQuestions, generalQuestions);
+  		JsonElement data = user.generateFeed(feedGenerator, storage);
   		view.render(data, response.getWriter());
 		}
 		// else if (....) ... 
